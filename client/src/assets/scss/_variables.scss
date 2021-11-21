@@ -1,0 +1,84 @@
+$db-designer-font-family: 'db-designer';
+$db-designer-font-family-path: '../fonts';
+
+$primary-color: #123456;
+$secondary-color: #123456;
+$dark-color: #333;
+$light-color: #d7d7d7;
+$light-green: rgb(72, 175, 72);
+$red: rgb(190, 20, 20);
+
+$small-radius: 3px;
+$medium-radius: $small-radius * 2;
+$large-radius: $medium-radius * 2;
+$table-radius: 10px;
+$max-container-width: 1480px;
+
+// Small tablets and large smartphones (landscape view)
+$screen-sm-min: 576px;
+
+// Small tablets (portrait view)
+$screen-md-min: 768px;
+
+// Tablets and small desktops
+$screen-lg-min: 992px;
+
+// Large tablets and desktops
+$screen-xl-min: 1200px;
+
+// 2K and higher screens
+$screen-xxl-min: 1800px;
+
+$edit: '\e100';
+$checkmark: '\e101';
+$brush: '\e102';
+$close-cross: '\e103';
+
+// Small devices
+@mixin sm {
+  @media (min-width: #{$screen-sm-min}) {
+    @content;
+  }
+}
+
+// Medium devices
+@mixin md {
+  @media (min-width: #{$screen-md-min}) {
+    @content;
+  }
+}
+
+// Large devices
+@mixin lg {
+  @media (min-width: #{$screen-lg-min}) {
+    @content;
+  }
+}
+
+// Extra large devices
+@mixin xl {
+  @media (min-width: #{$screen-xl-min}) {
+    @content;
+  }
+}
+
+// Extra extra large devices
+@mixin xxl {
+  @media (min-width: #{$screen-xxl-min}) {
+    @content;
+  }
+}
+
+// Custom devices
+@mixin rwd($screen) {
+  @media (min-width: #{$screen}px) {
+    @content;
+  }
+}
+
+@mixin flex($align: stretch, $justify: flex-start, $flex-flow: row nowrap) {
+  display: flex;
+  flex-flow: $flex-flow;
+  align-items: $align;
+  justify-content: $justify;
+}

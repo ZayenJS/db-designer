@@ -1,0 +1,19 @@
+@import '../../assets/scss/variables';
+@import '../../assets/scss/keyframes';
+
+.Mounted {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+}
+
+.Mounting {
+  @extend .Mounted;
+  opacity: 0;
+  animation: fade-in 500ms 1 forwards;
+}
+
+.Unmounting {
+  @extend .Mounted;
+  animation: fade-out 500ms 1 forwards;
+}

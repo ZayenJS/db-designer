@@ -1,0 +1,38 @@
+@import '../../../../assets/scss/variables';
+
+.Menu {
+  @include flex(stretch, space-between, column nowrap);
+  position: fixed;
+  padding: 0.25rem 0;
+  height: 0;
+  min-width: 12rem;
+  width: fit-content;
+  background-color: $light-color;
+  color: #333;
+  opacity: 0;
+  border-radius: $table-radius;
+  outline: 2px solid black;
+  outline-offset: -4px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  z-index: 1000000;
+  pointer-events: none;
+  transition: opacity 150ms ease, height 200ms ease;
+
+  li {
+    padding: 0.4rem 1rem;
+    width: 95%;
+    margin: auto;
+    cursor: pointer;
+    transition: all 250ms ease;
+
+    &:hover {
+      background-color: #ccc;
+    }
+  }
+
+  &.Visible {
+    opacity: 1;
+    height: 8.5rem;
+    pointer-events: all;
+  }
+}

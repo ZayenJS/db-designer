@@ -1,0 +1,19 @@
+@import '../../../../assets/scss/variables';
+
+.Container {
+  @include flex(center, center, column nowrap);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  max-width: $max-container-width / 3;
+  padding: 2rem;
+  border-radius: $table-radius;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  z-index: 1000000;
+}
+
+.CheckBox {
+  margin: 1rem 0;
+}

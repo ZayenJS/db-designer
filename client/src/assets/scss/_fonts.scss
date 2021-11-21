@@ -1,0 +1,12 @@
+@font-face {
+  font-family: $db-designer-font-family;
+  src: url('#{$db-designer-font-family-path}/#{$db-designer-font-family}.eot');
+  src: url('#{$db-designer-font-family-path}/#{$db-designer-font-family}.eot?#iefix')
+      format('embedded-opentype'),
+    url('#{$db-designer-font-family-path}/#{$db-designer-font-family}.woff') format('woff'),
+    url('#{$db-designer-font-family-path}/#{$db-designer-font-family}.ttf') format('truetype'),
+    url('#{$db-designer-font-family-path}/#{$db-designer-font-family}.svg#db-designer')
+      format('svg');
+  font-weight: normal;
+  font-style: normal;
+}

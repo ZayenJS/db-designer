@@ -1,0 +1,1 @@
+export * as actionsTemplate from './actions.template'

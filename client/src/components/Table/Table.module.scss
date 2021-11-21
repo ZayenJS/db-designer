@@ -1,0 +1,144 @@
+@import '../../assets/scss/variables';
+
+%Icon {
+  @include flex(center, center);
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  height: 2.25rem;
+  width: 2.25rem;
+  cursor: pointer;
+
+  &:before {
+    font-family: $db-designer-font-family;
+    font-size: 1.5rem;
+  }
+}
+
+.Wrapper {
+  position: relative;
+}
+
+.Container {
+  font-family: sans-serif;
+  font-size: 1.25rem;
+  outline: 1px solid $light-color;
+  min-width: 15rem;
+  max-width: 30rem;
+  min-height: 10rem;
+  max-height: 42rem;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  position: absolute;
+  user-select: none;
+  z-index: 500000;
+  background-color: $light-color;
+  resize: both;
+}
+
+.Handle {
+  background-color: $light-color;
+  cursor: grab;
+  padding: 0.75rem;
+  border-top-left-radius: $table-radius;
+  border-top-right-radius: $table-radius;
+
+  &.Editing {
+    cursor: default;
+
+    &:active {
+      cursor: default;
+    }
+  }
+
+  form {
+    @include flex(center, space-between);
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.Edit {
+  @extend %Icon;
+
+  &:before {
+    content: $edit;
+    color: #5393d3;
+  }
+}
+
+.Validate {
+  @extend %Icon;
+
+  &:before {
+    content: $checkmark;
+    color: rgb(76, 202, 76);
+  }
+}
+
+.TableName {
+  @include flex(center);
+  height: 2rem;
+  min-width: 6rem;
+  cursor: inherit;
+  border-bottom: 1px solid transparent;
+
+  &:active {
+    cursor: inherit;
+  }
+
+  &.Editing {
+    outline: none;
+    cursor: text;
+    border-bottom: 1px solid $light-color;
+
+    &:active {
+      cursor: text;
+    }
+  }
+}
+
+.Color {
+  @extend %Icon;
+  position: relative;
+
+  input[type='color'] {
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  &:before {
+    content: $brush;
+    color: $light-color;
+  }
+}
+
+.Actions {
+  @include flex(center, center);
+  gap: 0.5rem;
+}
+
+.Footer {
+  position: absolute;
+  font-family: inherit;
+  bottom: 0;
+  width: 100%;
+  height: 2rem;
+  border-bottom-left-radius: $table-radius;
+  border-bottom-right-radius: $table-radius;
+  overflow: hidden;
+
+  button {
+    cursor: pointer;
+    text-align: center;
+    font-size: 1.1rem;
+    border: none;
+    font-family: inherit;
+    border-top: 1px solid #000;
+    height: 100%;
+    width: 100%;
+  }
+}

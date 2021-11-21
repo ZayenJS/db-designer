@@ -1,0 +1,169 @@
+@import '../../assets/scss/variables';
+
+%Input {
+  padding: 1rem;
+  border: none;
+  border-top: 1px solid $secondary-color;
+  border-left: 1px solid $secondary-color;
+  border-right: 1px solid $secondary-color;
+  border-radius: $medium-radius;
+  border-bottom: 4px solid $secondary-color;
+  box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.1);
+  color: $dark-color;
+  font-size: 1.25rem;
+  width: inherit;
+}
+
+%Input_Container_WithAnimated_Label {
+  width: 100%;
+  position: relative;
+  margin: 2rem 0;
+
+  input {
+    @extend %Input;
+
+    &:placeholder-shown + label {
+      font-size: 1em;
+      bottom: 50%;
+      transform: translateY(50%);
+      left: 0.5rem;
+    }
+
+    &:focus-visible,
+    &:not(:placeholder-shown) {
+      border-color: $secondary-color;
+    }
+
+    &:focus-visible + label,
+    &:not(:placeholder-shown) + label {
+      bottom: 100%;
+      left: 0;
+      font-size: 1em;
+      transform: translateY(-25%);
+      color: $light-green;
+    }
+
+    &.Error {
+      border-color: $red;
+    }
+
+    &[type='checkbox'] {
+      padding: 0.75rem;
+      border-bottom: 1px solid $secondary-color;
+      position: relative;
+      transition: all 100ms ease;
+
+      &:before {
+        font-family: $db-designer-font-family;
+        position: absolute;
+        content: $checkmark;
+        color: transparent;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        transition: all 100ms ease;
+      }
+
+      &:checked {
+        background-color: $secondary-color;
+
+        &:before {
+          color: $light-color;
+        }
+      }
+
+      & + label {
+        position: static;
+        transform: none;
+        color: $secondary-color;
+        font-size: 1.2em;
+        pointer-events: all;
+      }
+    }
+  }
+
+  label {
+    position: absolute;
+    pointer-events: none;
+    transition: all 175ms ease-in;
+  }
+}
+
+.Container {
+  @extend %Input_Container_WithAnimated_Label;
+
+  &.Error {
+    input,
+    textarea {
+      &:focus-visible,
+      &:not(:placeholder-shown) {
+        border-color: $red;
+      }
+
+      &:focus-visible + label,
+      &:not(:placeholder-shown) + label {
+        color: $red;
+      }
+
+      & + label {
+        color: $red;
+      }
+    }
+  }
+
+  & > div {
+    position: relative;
+  }
+
+  textarea {
+    @extend %Input;
+    resize: none;
+    min-height: 15rem;
+
+    & + label {
+      transition: all 300ms ease-in;
+    }
+
+    &:placeholder-shown + label {
+      font-size: 1em;
+      bottom: 2rem;
+      transform: translateY(50%);
+      left: 0.5rem;
+    }
+
+    &:focus-visible,
+    &:not(:placeholder-shown) {
+      border-color: $secondary-color;
+    }
+
+    &:focus-visible + label,
+    &:not(:placeholder-shown) + label {
+      bottom: 100%;
+      left: 0;
+      font-size: 1em;
+      transform: translateY(-25%);
+      color: $light-green;
+    }
+
+    &.Error {
+      border-color: $red;
+    }
+  }
+
+  &.Checkbox {
+    & > div {
+      @include flex(center);
+      gap: 0.5rem;
+    }
+  }
+}
+
+span.Error {
+  @include flex(center, center);
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: $medium-radius;
+  background-color: transparentize(lighten($red, 30%), 0.6);
+  color: lighten($red, 50%);
+  border: 2px solid transparentize($red, 0.5);
+}

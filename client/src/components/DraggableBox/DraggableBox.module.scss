@@ -1,0 +1,26 @@
+@import '../../assets/scss/variables';
+
+.Container {
+  font-size: 1.25rem;
+  border: 1px solid $light-color;
+  min-width: 15rem;
+  min-height: 10rem;
+  aspect-ratio: 16/9;
+  position: absolute;
+  user-select: none;
+  z-index: 500000;
+  overflow: hidden;
+  background-color: $light-color;
+  resize: both;
+}
+
+.Handle {
+  @include flex(center, center);
+  background-color: $light-color;
+  cursor: grab;
+  padding: 0.5rem;
+
+  &:active {
+    cursor: grabbing;
+  }
+}

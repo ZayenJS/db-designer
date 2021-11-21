@@ -1,0 +1,1 @@
+export { templateMiddleware } from './middleware.template'
