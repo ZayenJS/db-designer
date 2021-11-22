@@ -154,7 +154,6 @@ const DatabaseDesign: FC<DatabaseDesignProps> = () => {
     const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
 
     let handleColor = '#333';
-    console.log({ luma });
 
     if (luma < 120) {
       handleColor = '#fff';

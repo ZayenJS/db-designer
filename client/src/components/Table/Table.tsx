@@ -97,10 +97,12 @@ const Table: FC<TableProps> = ({
             </div>
           </form>
         </header>
-        <main>
+        <main className={classes.Main}>
           <ReactSortable tag="ul" handle={''} list={properties} setList={onSetProperties}>
             {properties.map((prop) => (
-              <li key={prop.id}>{prop.name}</li>
+              <li className={classes.Property} key={prop.id}>
+                {prop.name}
+              </li>
             ))}
           </ReactSortable>
         </main>

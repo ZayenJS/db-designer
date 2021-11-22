@@ -48,13 +48,15 @@
     }
 
     &[type='checkbox'] {
-      padding: 0.75rem;
+      appearance: none;
+      padding: 0.7rem;
       border-bottom: 1px solid $secondary-color;
       position: relative;
       transition: all 100ms ease;
 
       &:before {
         font-family: $db-designer-font-family;
+        font-size: 1rem;
         position: absolute;
         content: $checkmark;
         color: transparent;

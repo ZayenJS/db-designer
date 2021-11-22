@@ -102,7 +102,7 @@ const AddColumnModal: FC<AddColumnModalProps> = ({
   return (
     <>
       <Backdrop isVisible={true} />
-      <dialog className={classes.Container}>
+      <div className={classes.Container}>
         <CloseCross modal tooltipPosition="left" click={onCancel} />
         <strong>Ajout d'une colonne à la table "{tableName}"</strong>
         <form onSubmit={formSubmitHandler}>
@@ -235,7 +235,7 @@ const AddColumnModal: FC<AddColumnModalProps> = ({
 
           <button>Ajouter</button>
         </form>
-      </dialog>
+      </div>
     </>
   );
 };
