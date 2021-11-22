@@ -42,6 +42,7 @@ const Table: FC<TableProps> = ({
   const formSubmitHandler = (event: FormEvent) => {
     event.preventDefault();
 
+    // TODO: check if empty field
     if (state.editing) changeTableName(tableName, state.newTableName);
 
     setState((prevState) => ({ ...prevState, editing: !state.editing }));
@@ -53,14 +54,19 @@ const Table: FC<TableProps> = ({
 
   const tableNameFieldKeyDownHandler = (event: KeyboardEvent) => {
     const tableNameElement = event.target as HTMLSpanElement;
+    let editing = true;
 
     if (event.key.toLowerCase() === 'enter') {
-      setState((prevState) => ({
-        ...prevState,
-        editing: false,
-        newTableName: tableNameElement.textContent ?? '',
-      }));
+       // TODO: check if empty field
+       changeTableName(tableName, tableNameElement.textContent);
+       editing = false;
     }
+
+    setState((prevState) => ({
+      ...prevState,
+      editing,
+      newTableName: tableNameElement.textContent,
+    }));
   };
 
   return (
