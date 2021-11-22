@@ -1,4 +1,4 @@
-import { FC, MouseEvent, useEffect, useRef, useState } from 'react';
+import { FC, Fragment, MouseEvent, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import Xarrow, { Xwrapper } from 'react-xarrows';
 import Table from '../../../components/Table/Table';
@@ -6,7 +6,9 @@ import Table from '../../../components/Table/Table';
 import classes from './DatabaseDesign.module.scss';
 import ContextMenu from './ContextMenu/ContextMenu';
 import {
+  DBMS,
   GridPosition,
+  SQLQuery,
   Table as DBTable,
   Table as TableModel,
   TableProperty,
@@ -15,10 +17,14 @@ import { StringUtil } from '../../../utils/StringUtil';
 import { ObjectUtil } from '../../../utils/ObjectUtil';
 import Portal from '../../../components/Portal/Portal';
 import AddColumnModal from './AddColumnModal/AddColumnModal';
+import { Color } from '../../../utils/Color';
+import { FileUtil } from '../../../utils/FileUtil';
+import Field from '../../../components/Field/Field';
 
 export interface DatabaseDesignProps {}
 
 interface DatabaseDesignState {
+  schemaName: string;
   mainContextMenuVisible: boolean;
   addColumnModalVisible: boolean;
   editingTable: DBTable | null;
@@ -30,6 +36,7 @@ interface DatabaseDesignState {
 
 const DatabaseDesign: FC<DatabaseDesignProps> = () => {
   const [state, setState] = useState<DatabaseDesignState>({
+    schemaName: 'untitled',
     mainContextMenuVisible: false,
     addColumnModalVisible: false,
     editingTable: null,
@@ -43,31 +50,17 @@ const DatabaseDesign: FC<DatabaseDesignProps> = () => {
   const menuRef = useRef<HTMLUListElement>(null);
 
   const generateSQL = () => {
-    const fullSQL = [];
+    const query = new SQLQuery(DBMS.POSTGRES);
 
     for (const table of state.tables) {
       const { tableName, props, relations } = table;
-
-      let SQL = `CREATE TABLE "${tableName}" (\n`;
-
-      const tableProps = [];
-
-      for (const prop of props) {
-        const { name, type, allowNull, unique, default: defaultValue } = prop;
-        tableProps.push(
-          `\t"${name}" ${type}${unique ? ' UNIQUE' : ''}${allowNull ? '' : ' NOT NULL'}${
-            defaultValue ? ' DEFAULT NOW()' : ''
-          }`,
-        );
-      }
-
-      SQL += tableProps.join(',\n');
-      SQL += '\n);\n';
-
-      fullSQL.push(SQL);
+      query.createTable(tableName);
+      query.createColumns(props, relations);
     }
 
-    console.log(fullSQL.join('\n'));
+    const completeQuery = query.getCompleteQuery();
+
+    FileUtil.makeDownloadableFile(completeQuery, `${state.schemaName}.sql`);
   };
 
   const showMenu = (event: MouseEvent) => {
@@ -145,18 +138,12 @@ const DatabaseDesign: FC<DatabaseDesignProps> = () => {
   };
 
   const onSetHandleBackgroundColor = (id: string, color: string) => {
-    const c = color.substring(1); // strip #
-    const rgb = parseInt(c, 16); // convert rrggbb to decimal
-    const r = (rgb >> 16) & 0xff; // extract red
-    const g = (rgb >> 8) & 0xff; // extract green
-    const b = (rgb >> 0) & 0xff; // extract blue
+    const luma = Color.getLuminance(color);
 
-    const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
-
-    let handleColor = '#333';
+    let handleColor = 'rgb(30, 30, 30)';
 
     if (luma < 120) {
-      handleColor = '#fff';
+      handleColor = 'rgb(255, 255, 255)';
     }
 
     const tables = state.tables.map((table) => ({
@@ -181,6 +168,34 @@ const DatabaseDesign: FC<DatabaseDesignProps> = () => {
 
   const addColumnHandler = (addedColumn: TableProperty) => {
     const editingTable = { ...state.editingTable };
+
+    if (!editingTable.relations?.length) editingTable.relations = [];
+
+    if (addedColumn.tableRef) {
+      const tableRef = state.tables.find((t) => t.key === addedColumn.tableRef);
+
+      if (tableRef) {
+        const columnRef = tableRef.props.find((p) => p.id === addedColumn.fieldRef);
+
+        if (columnRef) {
+          editingTable.relations.push({
+            referencedTable: { id: tableRef.key, name: tableRef.tableName },
+            referencedColumn: {
+              id: columnRef.id,
+              name: columnRef.name,
+              offset: columnRef.offset ?? 0,
+            },
+            baseColumn: {
+              id: addedColumn.id,
+              name: addedColumn.name,
+              offset: addedColumn.offset ?? 0,
+            },
+            baseTable: { id: editingTable.key!, name: editingTable.tableName! },
+          });
+        }
+      }
+    }
+
     editingTable.props?.push(addedColumn);
     const tables = (ObjectUtil.deepCopy(state.tables) as TableModel[]).map((table) =>
       table.key === editingTable.key ? editingTable : table,
@@ -194,6 +209,23 @@ const DatabaseDesign: FC<DatabaseDesignProps> = () => {
     }));
   };
 
+  const setFieldOffset = (tableId: string, fieldId: string, offset: number) => {
+    const tables = [...state.tables];
+    let updateState = false;
+
+    for (const table of tables) {
+      if (table.key === tableId) {
+        for (const prop of table.props) {
+          if (prop.id === fieldId && prop.offset !== offset) {
+            prop.offset = offset;
+            updateState = true;
+          }
+        }
+      }
+    }
+
+    if (updateState) setState((prevState) => ({ ...prevState, tables }));
+  };
   return (
     <>
       <div
@@ -210,34 +242,84 @@ const DatabaseDesign: FC<DatabaseDesignProps> = () => {
         />
         <Xwrapper>
           {state.tables.map((element) => (
-            <Table
-              key={element.key}
-              id={element.key}
-              tableName={element.tableName}
-              handleBackgroundColor={element.handleBackgroundColor}
-              handleColor={element.handleColor}
-              defaultPosition={element.defaultPosition}
-              changeTableName={changeTableName}
-              properties={element.props}
-              setProperties={setProperties}
-              setHandleBackgroundColor={onSetHandleBackgroundColor}
-              onAddColumn={openAddColumnModal}
-              rounded
-            />
+            <Fragment key={element.key}>
+              <Table
+                key={element.key}
+                id={element.key}
+                tableName={element.tableName}
+                handleBackgroundColor={element.handleBackgroundColor}
+                handleColor={element.handleColor}
+                defaultPosition={element.defaultPosition}
+                changeTableName={changeTableName}
+                properties={element.props}
+                setProperties={setProperties}
+                setFieldOffset={setFieldOffset}
+                setHandleBackgroundColor={onSetHandleBackgroundColor}
+                onAddColumn={openAddColumnModal}
+                rounded
+              />
+              {element.relations.map((relation) => (
+                <Xarrow
+                  key={uuidv4()}
+                  showHead
+                  // labels={{
+                  //   middle: (
+                  //     <div
+                  //       style={{
+                  //         color: '#333',
+                  //         fontSize: '1.5rem',
+                  //         background: '#999',
+                  //         padding: '.5rem',
+                  //         borderRadius: '10px',
+                  //         display: 'flex',
+                  //         alignItems: 'center',
+                  //         justifyContent: 'center',
+                  //       }}>
+                  //       0N users - 11 posts
+                  //     </div>
+                  //   ),
+                  // }}
+                  curveness={0.65}
+                  color="#fff" // TODO: have a setting for this
+                  startAnchor={{
+                    offset: {
+                      y: state.tables
+                        .find((t) => t.key === relation.baseTable.id)
+                        ?.props.find((p) => p.id === relation.baseColumn.id)?.offset,
+                      x: 0,
+                    },
+                    position: 'auto',
+                  }}
+                  endAnchor={{
+                    offset: {
+                      y: state.tables
+                        .find((t) => t.key === relation.referencedTable.id)
+                        ?.props.find((p) => p.id === relation.referencedColumn.id)?.offset,
+                      x: 0,
+                    },
+                    position: 'auto',
+                  }}
+                  headSize={6}
+                  zIndex={5_000_000}
+                  start={element.key}
+                  end={relation.referencedTable.id}
+                />
+              ))}
+            </Fragment>
           ))}
-
-          {/* <Table rounded id={users} defaultPosition={{ x: 500, y: 270 }} />
-        <Table id={workouts} defaultPosition={{ x: 200, y: 57 }} />
-        <Table id={workoutlogs} defaultPosition={{ x: 700, y: 57 }} />
-        <Xarrow start={users} end={workouts} />
-        <Xarrow start={workoutlogs} end={workouts} /> */}
         </Xwrapper>
+        <Field
+          name="schemaName"
+          value={state.schemaName}
+          onChange={(e) =>
+            setState((prevState) => ({ ...prevState, [e.target.name]: e.target.value }))
+          }
+        />
         <button onClick={generateSQL}>générer</button>
       </div>
 
       <Portal animate animationDuration={150} mount={state.addColumnModalVisible}>
         <AddColumnModal
-          tableId={state.editingTable?.key ?? ''}
           tableName={state.editingTable?.tableName ?? ''}
           availableTables={state.tables.map((table) => ({
             id: table.key,

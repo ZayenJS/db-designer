@@ -3,20 +3,14 @@ import { v4 as uuidv4 } from 'uuid';
 import Backdrop from '../../../../components/Backdrop/Backdrop';
 import CloseCross from '../../../../components/CloseCross/CloseCross';
 import Field from '../../../../components/Field/Field';
-import { SQLDataTypes, TableProperty } from '../../../../models';
+import { Identifier, SQLDataTypes, TableProperty } from '../../../../models';
 import { StringUtil } from '../../../../utils/StringUtil';
 
 import classes from './AddColumnModal.module.scss';
 
-type Identifier = {
-  id: string;
-  name: string;
-};
-
 type AddColumnTable = Identifier & { fields: Identifier[] };
 
 export interface AddColumnModalProps {
-  tableId: string;
   tableName: string;
   availableTables: AddColumnTable[];
   onValidate: (addedColumn: TableProperty) => void;
@@ -24,7 +18,6 @@ export interface AddColumnModalProps {
 }
 
 const AddColumnModal: FC<AddColumnModalProps> = ({
-  tableId,
   tableName,
   availableTables,
   onCancel,
@@ -34,7 +27,6 @@ const AddColumnModal: FC<AddColumnModalProps> = ({
     id: `_${StringUtil.makeid(50)}`,
     name: '',
     type: 'VARCHAR',
-    size: 255,
     allowNull: false,
   });
 
@@ -104,8 +96,10 @@ const AddColumnModal: FC<AddColumnModalProps> = ({
       <Backdrop isVisible={true} />
       <div className={classes.Container}>
         <CloseCross modal tooltipPosition="left" click={onCancel} />
-        <strong>Ajout d'une colonne à la table "{tableName}"</strong>
-        <form onSubmit={formSubmitHandler}>
+        <strong>
+          Renseignez les caractéristiques de la colonne à ajouter à la table "{tableName}"
+        </strong>
+        <form className={classes.Form} onSubmit={formSubmitHandler}>
           <Field
             id={uuidv4()}
             name="name"
@@ -218,7 +212,9 @@ const AddColumnModal: FC<AddColumnModalProps> = ({
                 <select name="tableRef" onChange={inputChangeHandler}>
                   <option>Table de référence</option>
                   {availableTables.map((table) => (
-                    <option value={table.id}>{table.name}</option>
+                    <option key={table.id} value={table.id}>
+                      {table.name}
+                    </option>
                   ))}
                 </select>
                 <select name="fieldRef" onChange={inputChangeHandler}>
@@ -226,7 +222,11 @@ const AddColumnModal: FC<AddColumnModalProps> = ({
                   {state.tableRef
                     ? availableTables
                         .find((t) => t.id === state.tableRef)!
-                        .fields.map((field) => <option value={field.id}>{field.name}</option>)
+                        .fields.map((field) => (
+                          <option key={field.id} value={field.id}>
+                            {field.name}
+                          </option>
+                        ))
                     : null}
                 </select>
               </>

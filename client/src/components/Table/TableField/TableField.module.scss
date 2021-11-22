@@ -1,0 +1,71 @@
+@import '../../../assets/scss/variables';
+
+%Icon {
+  @include flex(center, center);
+  border: none;
+  border-radius: $table-radius / 2;
+  background-color: rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: all 200ms ease;
+
+  &:before {
+    font-family: $db-designer-font-family;
+    font-size: 1.1rem;
+    transition: all 200ms ease;
+  }
+}
+.Container {
+  @include flex(center, space-between);
+  position: relative;
+}
+
+.Name,
+.Actions {
+  @include flex(center, center);
+  gap: 0.5rem;
+}
+
+.Primary_Key {
+  @extend %Icon;
+  cursor: default;
+
+  &:before {
+    content: $key;
+    color: rgb(253, 236, 0);
+    padding: 0.25rem;
+    border-radius: $table-radius / 2;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+.Edit {
+  @extend %Icon;
+  background: none;
+  border-radius: none;
+  padding: 0;
+
+  &:hover:before {
+    color: lighten($blue, 10%);
+  }
+
+  &:before {
+    content: $edit;
+    color: $blue;
+  }
+}
+
+.Move {
+  @extend %Icon;
+  background: none;
+  border-radius: none;
+  padding: 0;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &:before {
+    content: $move;
+  }
+}

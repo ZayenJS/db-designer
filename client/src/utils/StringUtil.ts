@@ -150,4 +150,7 @@ export class StringUtil {
     }, '');
 
   public static upperCaseFirstLetter = (str: string) => str[0].toUpperCase() + str.slice(1);
+
+  public static isString = (str: string | boolean | number) =>
+    isNaN(+str) && str.toString() !== 'true' && str.toString() !== 'false';
 }

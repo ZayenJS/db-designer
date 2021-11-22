@@ -4,9 +4,10 @@ $db-designer-font-family-path: '../fonts';
 $primary-color: #123456;
 $secondary-color: #123456;
 $dark-color: #333;
-$light-color: #d7d7d7;
+$light-color: #e7e7e7;
 $light-green: rgb(72, 175, 72);
 $red: rgb(190, 20, 20);
+$blue: #5393d3;
 
 $small-radius: 3px;
 $medium-radius: $small-radius * 2;
@@ -33,6 +34,9 @@ $edit: '\e100';
 $checkmark: '\e101';
 $brush: '\e102';
 $close-cross: '\e103';
+$key: '\e104';
+$trash: '\e105';
+$move: '\e106';
 
 // Small devices
 @mixin sm {
