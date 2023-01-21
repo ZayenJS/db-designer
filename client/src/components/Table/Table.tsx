@@ -55,7 +55,7 @@ const Table: FC<TableProps> = ({
 
     // doesn't work without setTimeout
     setTimeout(() => {
-      inputRef.current?.focus();
+      inputRef.current?.select();
     }, 5);
 
     const textLength = inputRef.current?.value.length;

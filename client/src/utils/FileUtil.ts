@@ -8,6 +8,9 @@ export class FileUtil {
     const file = new Blob([content], { type: contentType });
 
     a.href = URL.createObjectURL(file);
+
+    console.log(a.href);
+
     a.download = filename;
     a.click();
 

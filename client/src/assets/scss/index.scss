@@ -7,6 +7,14 @@ html {
   font-family: sans-serif;
 }
 
+::-webkit-scrollbar {
+  width: 0.75rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, darken($primary-color, 10%), lighten($primary-color, 1%));
+}
+
 button,
 a {
   transition: all 200ms ease;

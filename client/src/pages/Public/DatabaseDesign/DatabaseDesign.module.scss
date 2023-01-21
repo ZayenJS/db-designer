@@ -1,6 +1,24 @@
 // @import "path_to_file";
 
 .Container {
-  min-height: 100vh;
-  position: relative;
+  min-height: 250vh;
+  min-width: 250vh;
+}
+
+.Field {
+  margin-top: 0;
+}
+
+.Minimap {
+  position: fixed;
+  right: 0;
+  height: 15rem;
+  width: 10rem;
+  z-index: 3000;
+  bottom: 0;
+
+  > * {
+    height: 100%;
+    object-fit: contain;
+  }
 }

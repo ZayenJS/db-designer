@@ -1,10 +1,14 @@
-import { FC, Fragment, MouseEvent, useRef, useState } from 'react';
+import { FC, Fragment, MouseEvent, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import Xarrow, { Xwrapper } from 'react-xarrows';
-import Table from '../../../components/Table/Table';
+import html2canvas from 'html2canvas';
 
-import classes from './DatabaseDesign.module.scss';
+import Table from '../../../components/Table/Table';
+import Field from '../../../components/Field/Field';
 import ContextMenu from './ContextMenu/ContextMenu';
+import Portal from '../../../components/Portal/Portal';
+import AddColumnModal from './AddColumnModal/AddColumnModal';
+
 import {
   DBMS,
   GridPosition,
@@ -13,13 +17,13 @@ import {
   Table as TableModel,
   TableProperty,
 } from '../../../models';
+
 import { StringUtil } from '../../../utils/StringUtil';
 import { ObjectUtil } from '../../../utils/ObjectUtil';
-import Portal from '../../../components/Portal/Portal';
-import AddColumnModal from './AddColumnModal/AddColumnModal';
 import { Color } from '../../../utils/Color';
 import { FileUtil } from '../../../utils/FileUtil';
-import Field from '../../../components/Field/Field';
+
+import classes from './DatabaseDesign.module.scss';
 
 export interface DatabaseDesignProps {}
 
@@ -28,10 +32,14 @@ interface DatabaseDesignState {
   mainContextMenuVisible: boolean;
   addColumnModalVisible: boolean;
   editingTable: DBTable | null;
+  panning: boolean;
+  panX: number;
+  panY: number;
+  zoom: number;
   menuX: number;
   menuY: number;
-  zoom: number;
   tables: DBTable[];
+  minimap: string;
 }
 
 const DatabaseDesign: FC<DatabaseDesignProps> = () => {
@@ -40,16 +48,28 @@ const DatabaseDesign: FC<DatabaseDesignProps> = () => {
     mainContextMenuVisible: false,
     addColumnModalVisible: false,
     editingTable: null,
+    panning: false,
+    panX: 0,
+    panY: 0,
+    zoom: 1,
     menuX: 0,
     menuY: 0,
-    zoom: 1,
     tables: [],
+    minimap: '',
   });
 
   const containerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLUListElement>(null);
 
-  const generateSQL = () => {
+  useEffect(() => {
+    // document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
+  const generateSQL = async () => {
     const query = new SQLQuery(DBMS.POSTGRES);
 
     for (const table of state.tables) {
@@ -60,11 +80,22 @@ const DatabaseDesign: FC<DatabaseDesignProps> = () => {
 
     const completeQuery = query.getCompleteQuery();
 
-    FileUtil.makeDownloadableFile(completeQuery, `${state.schemaName}.sql`);
+    // FileUtil.makeDownloadableFile(completeQuery, `${state.schemaName}.sql`);
+    if (containerRef.current) {
+      const canvas = await html2canvas(containerRef.current, {
+        backgroundColor: '#333',
+      });
+
+      const minimap = canvas.toDataURL('image/png', 0.5);
+      document.body.append(canvas);
+
+      setState((prevState) => ({ ...prevState, minimap }));
+    }
   };
 
   const showMenu = (event: MouseEvent) => {
     event.preventDefault();
+
     if (event.target === containerRef.current) {
       setState((prevState) => ({
         ...prevState,
@@ -226,13 +257,32 @@ const DatabaseDesign: FC<DatabaseDesignProps> = () => {
 
     if (updateState) setState((prevState) => ({ ...prevState, tables }));
   };
+
   return (
     <>
+      {/* //TODO implement minimap */}
+      <div className={classes.Minimap}>
+        {state.minimap ? <img src={state.minimap} alt="" /> : <div></div>}
+      </div>
       <div
-        style={{ transform: `scale(${state.zoom})` }}
+        id="db-design"
         ref={containerRef}
         onContextMenu={showMenu}
         onClick={appClickHandler}
+        // onMouseDown={(e) =>
+        //   setState((prevState) => ({ ...prevState, panX: e.pageX, panY: e.pageY, panning: true }))
+        // }
+        // onMouseMove={(e) => {
+        //   if (state.panning) {
+        //     window.scrollBy({
+        //       behavior: 'auto',
+        //       left: state.panX - e.pageX,
+        //       top: state.panY - e.pageY,
+        //     });
+        //     setState((prevState) => ({ ...prevState, panX: e.pageX, panY: e.pageY }));
+        //   }
+        // }}
+        // onMouseUp={(e) => setState((prevState) => ({ ...prevState, panning: false }))}
         className={classes.Container}>
         <ContextMenu
           posX={state.menuX}
@@ -262,23 +312,6 @@ const DatabaseDesign: FC<DatabaseDesignProps> = () => {
                 <Xarrow
                   key={uuidv4()}
                   showHead
-                  // labels={{
-                  //   middle: (
-                  //     <div
-                  //       style={{
-                  //         color: '#333',
-                  //         fontSize: '1.5rem',
-                  //         background: '#999',
-                  //         padding: '.5rem',
-                  //         borderRadius: '10px',
-                  //         display: 'flex',
-                  //         alignItems: 'center',
-                  //         justifyContent: 'center',
-                  //       }}>
-                  //       0N users - 11 posts
-                  //     </div>
-                  //   ),
-                  // }}
                   curveness={0.65}
                   color="#fff" // TODO: have a setting for this
                   startAnchor={{
@@ -308,14 +341,17 @@ const DatabaseDesign: FC<DatabaseDesignProps> = () => {
             </Fragment>
           ))}
         </Xwrapper>
-        <Field
-          name="schemaName"
-          value={state.schemaName}
-          onChange={(e) =>
-            setState((prevState) => ({ ...prevState, [e.target.name]: e.target.value }))
-          }
-        />
-        <button onClick={generateSQL}>générer</button>
+        <div style={{ position: 'fixed', top: 0, left: 0 }}>
+          <Field
+            name="schemaName"
+            value={state.schemaName}
+            className={classes.Field}
+            onChange={(e) =>
+              setState((prevState) => ({ ...prevState, [e.target.name]: e.target.value }))
+            }
+          />
+          <button onClick={generateSQL}>générer</button>
+        </div>
       </div>
 
       <Portal animate animationDuration={150} mount={state.addColumnModalVisible}>
